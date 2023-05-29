@@ -5,6 +5,7 @@ from .serializers import MenuItemSerializer, CategorySerializer
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User, Group
+from .permissions import ManagerOnlyPermission
 # Create your views here.
 
 
@@ -13,8 +14,9 @@ class MenuItemsView(generics.ListCreateAPIView):
     serializer_class = MenuItemSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     def get_permissions(self):
-        if self.request.method == 'POST':
-            return [IsAdminUser()]
+        if self.request.method == 'POST' or self.request.method == 'PUT' or self.request.method == 'DELETE':
+            # manager = Group.filter(name="Manager")
+            return [ManagerOnlyPermission()]
         return [IsAuthenticated()]
     
 
@@ -23,6 +25,6 @@ class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MenuItemSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     def get_permissions(self):
-        if self.request.method == 'POST':
-            return [IsAdminUser()]
+        if self.request.method == 'POST' or self.request.method == 'PUT' or self.request.method == 'DELETE':
+            return [ManagerOnlyPermission()]
         return [IsAuthenticated()]
