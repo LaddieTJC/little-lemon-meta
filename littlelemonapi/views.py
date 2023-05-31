@@ -50,6 +50,16 @@ class ManagersView(generics.GenericAPIView):
         
         return Response({"Message":"Error"}, status.HTTP_400_BAD_REQUEST)
     
+    def delete(self, request):
+        username = request.data['username']
+        if username:
+            user = get_object_or_404(User, username=username) 
+            managers = Group.objects.get(name="Manager")
+            managers.user_set.remove(user)
+            return Response({"Message": "Removed from Manager"})
+        
+        return Response({"Message":"Error"}, status.HTTP_400_BAD_REQUEST)
+
 
 
 
