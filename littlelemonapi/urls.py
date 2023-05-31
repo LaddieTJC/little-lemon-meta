@@ -7,4 +7,5 @@ urlpatterns = [
         path('menu-items/<int:pk>', views.SingleMenuItemView.as_view()),
         path('groups/manager/users', views.ManagersView.as_view()),
         path('groups/delivery-crew/users', views.DeliveryCrewView.as_view()),
+        path('cart/menu-items', views.CartView.as_view()),
 ]

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from .models import MenuItem, Category
+from .models import MenuItem, Category, Cart
 from rest_framework import generics, status
-from .serializers import MenuItemSerializer, CategorySerializer, UserSerializer
+from .serializers import MenuItemSerializer, CategorySerializer, UserSerializer, CartSerializer
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User, Group
@@ -89,6 +89,20 @@ class DeliveryCrewView(generics.GenericAPIView):
             return Response({"Message": "Removed from Delivery"})
         
         return Response({"Message":"Error"}, status.HTTP_400_BAD_REQUEST)
+    
+
+
+class CartView(generics.GenericAPIView):
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    permission_classes = [IsAuthenticated,]
+    
+    def get(self, request):
+        user = request.user
+        cart = Cart.objects.filter(user=user)
+        serializer = CartSerializer(cart, many=True)
+        return Response(serializer.data)
+    
+
 
 
 
