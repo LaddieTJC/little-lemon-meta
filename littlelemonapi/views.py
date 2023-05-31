@@ -92,15 +92,24 @@ class DeliveryCrewView(generics.GenericAPIView):
     
 
 
-class CartView(generics.GenericAPIView):
+class CartView(generics.ListCreateAPIView):
+    serializer_class = CartSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     permission_classes = [IsAuthenticated,]
     
-    def get(self, request):
-        user = request.user
-        cart = Cart.objects.filter(user=user)
-        serializer = CartSerializer(cart, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        menuitem = self.request.data.get('menuitem')
+        quantity = self.request.data.get('quantity')
+        unit_price = MenuItem.objects.get(pk=menuitem).price
+        price = int(quantity) * unit_price
+        serializer.save(user=self.request.user, price=price)
+
+    def delete(self, serializer):
+        Cart.objects.filter(user=self.request.user).delete()
+        return Response(status=204)
     
 
 
